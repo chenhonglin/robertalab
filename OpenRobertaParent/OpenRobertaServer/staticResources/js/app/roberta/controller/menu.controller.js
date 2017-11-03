@@ -3,6 +3,7 @@ define([ 'exports', 'log', 'util', 'message', 'comm', 'robot.controller', 'socke
         exports, LOG, UTIL, MSG, COMM, ROBOT_C, SOCKET_C, USER_C, USER, GUISTATE_C, CookieDisclaimer, PROGRAM_C, CONFIGURATION_C, EnjoyHint, TOUR_C, SIM, $, Blockly) {
 
     function init() {
+
         initMenu();
         initMenuEvents();
         /**
@@ -377,6 +378,10 @@ define([ 'exports', 'log', 'util', 'message', 'comm', 'robot.controller', 'socke
                 break;
             case 'menuStateInfo':
                 USER_C.showUserInfo();
+                break;
+            case 'menuGroups':
+	            $('#tabGroupList').data('type', 'group');
+                $('#tabGroupList').click();
                 break;
             case 'menuAddStatusText':
                 USER_C.showStatusTextModal();

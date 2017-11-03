@@ -48,6 +48,16 @@ require.config({
         'tour.controller' : '../app/roberta/controller/tour.controller',
         'user.controller' : '../app/roberta/controller/user.controller',
         'user.model' : '../app/roberta/models/user.model',
+        'group.model' : '../app/roberta/models/group.model',
+        'groupList.model' : '../app/roberta/models/groupList.model',
+        'groupList.controller' : '../app/roberta/controller/groupList.controller',
+        'groupDelete.controller' : '../app/roberta/controller/groupDelete.controller',
+        'group.controller' : '../app/roberta/controller/group.controller',
+        'userGroup.model' : '../app/roberta/models/userGroup.model',
+        'userGroupList.model' : '../app/roberta/models/userGroupList.model',
+        'userGroupList.controller' : '../app/roberta/controller/userGroupList.controller',
+        'userGroupDelete.controller' : '../app/roberta/controller/userGroupDelete.controller',
+        'userGroup.controller' : '../app/roberta/controller/userGroup.controller',        
         'rest.robot' : '../app/roberta/rest/robot',
         'socket.controller' : '../app/roberta/controller/socket.controller',
         'cookieDisclaimer.controller' : '../app/roberta/controller/cookieDisclaimer.controller',
@@ -118,7 +128,8 @@ require.config({
 
 require([ 'require', 'wrap', 'jquery', 'jquery-cookie', 'guiState.controller', 'progList.controller', 'logList.controller', 'confList.controller',
         'progDelete.controller', 'confDelete.controller', 'progShare.controller', 'cookieDisclaimer.controller', 'menu.controller', 'user.controller', 'robot.controller',
-        'program.controller', 'configuration.controller', 'language.controller', 'socket.controller', 'volume-meter', 'user.model' ], function(require) {
+        'program.controller', 'configuration.controller', 'language.controller', 'socket.controller', 'volume-meter', 'user.model', 'group.controller', 'groupList.controller', 'groupDelete.controller',
+        , 'userGroup.controller', 'userGroupList.controller', 'userGroupDelete.controller' ], function(require) {
 
     $ = require('jquery', 'jquery-cookie');
     WRAP = require('wrap');
@@ -140,6 +151,12 @@ require([ 'require', 'wrap', 'jquery', 'jquery-cookie', 'guiState.controller', '
     userController = require('user.controller');
     userModel = require('user.model');
     socketController = require('socket.controller');
+    groupListController = require('groupList.controller');
+    groupDeleteController = require('groupDelete.controller');
+    groupController = require('group.controller');
+    userGroupListController = require('userGroupList.controller');
+    userGroupDeleteController = require('userGroupDelete.controller');
+    userGroupController = require('userGroup.controller');
 
     $(document).ready(WRAP.fn3(init, 'page init'));
 });
@@ -158,6 +175,10 @@ function init() {
     }).then(function() {
         galleryListController.init();
         progListController.init();
+        groupListController.init();
+        groupDeleteController.init();
+        userGroupListController.init();
+        userGroupDeleteController.init();
         progDeleteController.init();
         confListController.init();
         confDeleteController.init();
