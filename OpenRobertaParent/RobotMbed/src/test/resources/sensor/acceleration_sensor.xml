@@ -11,7 +11,7 @@
 			<value name="OUT">
 				<block type="mbedSensors_acceleration_getSample" id="%(5P9wVHel*0ZI-mgG*T"
 					intask="true">
-					<field name="DIRECTION">X</field>
+					<field name="MODE">X</field>
 				</block>
 			</value>
 		</block>
@@ -21,7 +21,7 @@
 			<value name="OUT">
 				<block type="mbedSensors_acceleration_getSample" id="f]tRGGE];w.}ab+W0yis"
 					intask="true">
-					<field name="DIRECTION">Y</field>
+					<field name="MODE">Y</field>
 				</block>
 			</value>
 		</block>
@@ -31,7 +31,7 @@
 			<value name="OUT">
 				<block type="mbedSensors_acceleration_getSample" id="E],d5B@c5bQbN1?Hwif}"
 					intask="true">
-					<field name="DIRECTION">Z</field>
+					<field name="MODE">Z</field>
 				</block>
 			</value>
 		</block>
@@ -41,7 +41,7 @@
 			<value name="OUT">
 				<block type="mbedSensors_acceleration_getSample" id="abad!CF9/?N_%zq/_~OL"
 					intask="true">
-					<field name="DIRECTION">STRENGTH</field>
+					<field name="MODE">STRENGTH</field>
 				</block>
 			</value>
 		</block>

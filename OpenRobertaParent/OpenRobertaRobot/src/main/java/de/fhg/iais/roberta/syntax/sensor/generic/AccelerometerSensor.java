@@ -37,7 +37,7 @@ public final class AccelerometerSensor<V> extends ExternalSensor<V> {
 
     @Override
     protected V accept(AstVisitor<V> visitor) {
-        return ((AstSensorsVisitor<V>) visitor).visitAccelerometer(this);
+        return ((AstSensorsVisitor<V>) visitor).visitAccelerometerSensor(this);
     }
 
     /**
@@ -48,10 +48,10 @@ public final class AccelerometerSensor<V> extends ExternalSensor<V> {
      * @return corresponding AST object
      */
     public static <V> Phrase<V> jaxbToAst(Block block, Jaxb2AstTransformer<V> helper) {
-        final IRobotFactory factory = helper.getModeFactory();
-        final SensorMetaDataBean sensorData = extractPortAndMode(block, helper);
-        final String mode = sensorData.getMode();
-        final String port = sensorData.getPort();
+        IRobotFactory factory = helper.getModeFactory();
+        SensorMetaDataBean sensorData = extractPortAndMode(block, helper);
+        String mode = sensorData.getMode();
+        String port = sensorData.getPort();
         return AccelerometerSensor
             .make(factory.getAccelerometerSensorMode(mode), factory.getSensorPort(port), helper.extractBlockProperties(block), helper.extractComment(block));
     }

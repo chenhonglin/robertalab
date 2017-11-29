@@ -3,7 +3,7 @@ package de.fhg.iais.roberta.mode.sensor;
 import de.fhg.iais.roberta.inter.mode.sensor.IAccelerometerSensorMode;
 
 public enum AccelerometerSensorMode implements IAccelerometerSensorMode {
-    DEFAULT, X( "X" ), Y( "Y" ), Z( "Z" );
+    DEFAULT, X( "X" ), Y( "Y" ), Z( "Z" ), STRENGTH( "STRENGTH" );
 
     private final String[] values;
 
@@ -13,7 +13,7 @@ public enum AccelerometerSensorMode implements IAccelerometerSensorMode {
 
     @Override
     public String[] getValues() {
-        return values;
+        return this.values;
     }
 
 }

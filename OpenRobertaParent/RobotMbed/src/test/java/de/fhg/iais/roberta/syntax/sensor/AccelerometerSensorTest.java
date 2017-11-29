@@ -13,10 +13,10 @@ public class AccelerometerSensorTest {
         String expectedResult =
             "BlockAST [project=[[Location [x=88, y=63], "
                 + "MainTask [], "
-                + "DisplayTextAction [TEXT, SensorExpr [AccelerometerSensor [X]]], "
-                + "DisplayTextAction [TEXT, SensorExpr [AccelerometerSensor [Y]]], "
-                + "DisplayTextAction [TEXT, SensorExpr [AccelerometerSensor [Z]]], "
-                + "DisplayTextAction [TEXT, SensorExpr [AccelerometerSensor [STRENGTH]]]]]]";
+                + "DisplayTextAction [TEXT, SensorExpr [Accelerometer [port = NO_PORT, coordinate  = X]]], "
+                + "DisplayTextAction [TEXT, SensorExpr [Accelerometer [port = NO_PORT, coordinate  = Y]]], "
+                + "DisplayTextAction [TEXT, SensorExpr [Accelerometer [port = NO_PORT, coordinate  = Z]]], "
+                + "DisplayTextAction [TEXT, SensorExpr [Accelerometer [port = NO_PORT, coordinate  = STRENGTH]]]]]]";
 
         String result = this.h.generateTransformerString("/sensor/acceleration_sensor.xml");
 

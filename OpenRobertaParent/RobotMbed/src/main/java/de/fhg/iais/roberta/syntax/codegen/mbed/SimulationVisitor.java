@@ -40,6 +40,7 @@ import de.fhg.iais.roberta.syntax.expr.mbed.RgbColor;
 import de.fhg.iais.roberta.syntax.functions.mbed.ImageInvertFunction;
 import de.fhg.iais.roberta.syntax.functions.mbed.ImageShiftFunction;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
+import de.fhg.iais.roberta.syntax.sensor.generic.AccelerometerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.BrickSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.ColorSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.CompassSensor;
@@ -52,7 +53,6 @@ import de.fhg.iais.roberta.syntax.sensor.generic.TemperatureSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.UltrasonicSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerOrientationSensor;
-import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.GestureSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.MbedGetSampleSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.PinGetValueSensor;
@@ -110,11 +110,11 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
     @Override
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         final String end = createClosingBracket();
-        sb.append("createMotorOnAction(");
+        this.sb.append("createMotorOnAction(");
         motorOnAction.getParam().getSpeed().visit(this);
-        sb.append(", " + "CONST.MOTOR_X" + motorOnAction.getPort());
+        this.sb.append(", " + "CONST.MOTOR_X" + motorOnAction.getPort());
 
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
@@ -126,25 +126,25 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
     @Override
     public Void visitMotorStopAction(MotorStopAction<Void> motorStopAction) {
         final String end = createClosingBracket();
-        sb.append("createStopMotorAction(");
-        sb.append("CONST.MOTOR_X" + motorStopAction.getPort());
-        sb.append(end);
+        this.sb.append("createStopMotorAction(");
+        this.sb.append("CONST.MOTOR_X" + motorStopAction.getPort());
+        this.sb.append(end);
         return null;
     }
 
     @Override
     public Void visitLightStatusAction(LightStatusAction<Void> lightStatusAction) {
         final String end = createClosingBracket();
-        sb.append("createStatusLight(CONST." + lightStatusAction.getStatus());
-        sb.append(end);
+        this.sb.append("createStatusLight(CONST." + lightStatusAction.getStatus());
+        this.sb.append(end);
         return null;
     }
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
         final String end = createClosingBracket();
-        sb.append("createClearDisplayAction(");
-        sb.append(end);
+        this.sb.append("createClearDisplayAction(");
+        this.sb.append(end);
         return null;
     }
 
@@ -176,7 +176,7 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
     @Override
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
         final String key = brickSensor.getKey().toString().toUpperCase();
-        sb.append("createGetSample(CONST.BUTTONS, CONST." + key + ")");
+        this.sb.append("createGetSample(CONST.BUTTONS, CONST." + key + ")");
         return null;
     }
 
@@ -187,7 +187,7 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
 
     @Override
     public Void visitLightSensor(LightSensor<Void> lightSensor) {
-        sb.append("createGetSample(CONST.AMBIENTLIGHT)");
+        this.sb.append("createGetSample(CONST.AMBIENTLIGHT)");
         return null;
     }
 
@@ -218,18 +218,18 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
 
     @Override
     public Void visitCompassSensor(CompassSensor<Void> compassSensor) {
-        sb.append("createGetSample(CONST.COMPASS)");
+        this.sb.append("createGetSample(CONST.COMPASS)");
         return null;
     }
 
     @Override
     public Void visitDisplayTextAction(DisplayTextAction<Void> displayTextAction) {
         final String end = createClosingBracket();
-        sb.append("createDisplayTextAction(CONST.");
-        sb.append(displayTextAction.getMode().toString());
-        sb.append(", ");
+        this.sb.append("createDisplayTextAction(CONST.");
+        this.sb.append(displayTextAction.getMode().toString());
+        this.sb.append(", ");
         displayTextAction.getMsg().visit(this);
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
@@ -244,35 +244,35 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
             predefinedImageArray += "],";
         }
         predefinedImageArray += "])";
-        sb.append(predefinedImageArray);
+        this.sb.append(predefinedImageArray);
         return null;
     }
 
     @Override
     public Void visitDisplayImageAction(DisplayImageAction<Void> displayImageAction) {
         final String end = createClosingBracket();
-        sb.append("createDisplayImageAction(CONST.");
-        sb.append(displayImageAction.getDisplayImageMode() + ", ");
+        this.sb.append("createDisplayImageAction(CONST.");
+        this.sb.append(displayImageAction.getDisplayImageMode() + ", ");
         displayImageAction.getValuesToDisplay().visit(this);
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
     @Override
     public Void visitImageShiftFunction(ImageShiftFunction<Void> imageShiftFunction) {
-        sb.append("createImageShiftAction(CONST." + imageShiftFunction.getShiftDirection() + ", ");
+        this.sb.append("createImageShiftAction(CONST." + imageShiftFunction.getShiftDirection() + ", ");
         imageShiftFunction.getPositions().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         imageShiftFunction.getImage().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitImageInvertFunction(ImageInvertFunction<Void> imageInvertFunction) {
-        sb.append("createImageInvertAction(");
+        this.sb.append("createImageInvertAction(");
         imageInvertFunction.getImage().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
@@ -303,25 +303,25 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
             }
         }
 
-        sb.append("createConstant(CONST." + image.getKind().getName() + ", [" + imageString + "])");
+        this.sb.append("createConstant(CONST." + image.getKind().getName() + ", [" + imageString + "])");
         return null;
     }
 
     @Override
     public Void visitGestureSensor(GestureSensor<Void> gestureSensor) {
-        sb.append("createGetSample(CONST.GESTURE, CONST." + gestureSensor.getMode() + ")");
+        this.sb.append("createGetSample(CONST.GESTURE, CONST." + gestureSensor.getMode() + ")");
         return null;
     }
 
     @Override
     public Void visitTemperatureSensor(TemperatureSensor<Void> temperatureSensor) {
-        sb.append("createGetSample(CONST.TEMPERATURE)");
+        this.sb.append("createGetSample(CONST.TEMPERATURE)");
         return null;
     }
 
     @Override
     public Void visitLedColor(LedColor<Void> ledColor) {
-        sb.append(
+        this.sb.append(
             "createConstant(CONST."
                 + ledColor.getKind().getName()
                 + ", ["
@@ -337,9 +337,9 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
     @Override
     public Void visitLedOnAction(LedOnAction<Void> ledOnAction) {
         final String end = createClosingBracket();
-        sb.append("createLedOnAction(");
+        this.sb.append("createLedOnAction(");
         ledOnAction.getLedColor().visit(this);
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
@@ -366,92 +366,92 @@ public class SimulationVisitor extends RobotSimulationVisitor<Void> implements M
 
     @Override
     public Void visitRgbColor(RgbColor<Void> rgbColor) {
-        sb.append("createRgbColor([");
+        this.sb.append("createRgbColor([");
         rgbColor.getR().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         rgbColor.getG().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         rgbColor.getB().visit(this);
-        sb.append("])");
+        this.sb.append("])");
         return null;
     }
 
     @Override
     public Void visitPinTouchSensor(PinTouchSensor<Void> pinTouchSensor) {
-        sb.append("createPinTouchSensor(" + pinTouchSensor.getPin().getPinNumber() + ")");
+        this.sb.append("createPinTouchSensor(" + pinTouchSensor.getPin().getPinNumber() + ")");
         return null;
     }
 
     @Override
     public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinValueSensor) {
-        sb.append("createPinGetValueSensor(CONST." + pinValueSensor.getValueType().toString());
-        sb.append(", " + pinValueSensor.getPin().getPinNumber() + ")");
+        this.sb.append("createPinGetValueSensor(CONST." + pinValueSensor.getValueType().toString());
+        this.sb.append(", " + pinValueSensor.getPin().getPinNumber() + ")");
         return null;
     }
 
     @Override
     public Void visitPinWriteValueSensor(PinWriteValue<Void> pinWriteValueSensor) {
         final String end = createClosingBracket();
-        sb.append("createPinWriteValueSensor(CONST." + pinWriteValueSensor.getValueType().toString());
-        sb.append(", " + pinWriteValueSensor.getPin().getPinNumber() + ", ");
+        this.sb.append("createPinWriteValueSensor(CONST." + pinWriteValueSensor.getValueType().toString());
+        this.sb.append(", " + pinWriteValueSensor.getPin().getPinNumber() + ", ");
         pinWriteValueSensor.getValue().visit(this);
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
     @Override
     public Void visitDisplaySetBrightnessAction(DisplaySetBrightnessAction<Void> displaySetBrightnessAction) {
         final String end = createClosingBracket();
-        sb.append("createDisplaySetBrightnessAction(");
+        this.sb.append("createDisplaySetBrightnessAction(");
         displaySetBrightnessAction.getBrightness().visit(this);
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
     @Override
     public Void visitDisplayGetBrightnessAction(DisplayGetBrightnessAction<Void> displayGetBrightnessAction) {
-        sb.append("createDisplayGetBrightnessAction(CONST.BRIGHTNESS)");
+        this.sb.append("createDisplayGetBrightnessAction(CONST.BRIGHTNESS)");
         return null;
     }
 
     @Override
     public Void visitDisplaySetPixelAction(DisplaySetPixelAction<Void> displaySetPixelAction) {
         final String end = createClosingBracket();
-        sb.append("createDisplaySetPixelAction(");
+        this.sb.append("createDisplaySetPixelAction(");
         displaySetPixelAction.getX().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         displaySetPixelAction.getY().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         displaySetPixelAction.getBrightness().visit(this);
-        sb.append(end);
+        this.sb.append(end);
         return null;
     }
 
     @Override
     public Void visitDisplayGetPixelAction(DisplayGetPixelAction<Void> displayGetPixelAction) {
-        sb.append("createDisplayGetPixelAction(");
+        this.sb.append("createDisplayGetPixelAction(");
         displayGetPixelAction.getX().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         displayGetPixelAction.getY().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitAccelerometerSensor(AccelerometerSensor<Void> accelerometerSensor) {
-        sb.append("0");
+        this.sb.append("0");
         return null;
     }
 
     @Override
     public Void visitAccelerometerOrientationSensor(AccelerometerOrientationSensor<Void> accelerometerOrientationSensor) {
-        sb.append("0");
+        this.sb.append("0");
         return null;
     }
 
     @Override
     public Void visitSoundSensor(SoundSensor<Void> soundSensor) {
-        sb.append("0");
+        this.sb.append("0");
         return null;
     }
 

@@ -21,7 +21,6 @@ import de.fhg.iais.roberta.inter.mode.sensor.IInfraredSensorMode;
 import de.fhg.iais.roberta.inter.mode.sensor.IJoystickMode;
 import de.fhg.iais.roberta.inter.mode.sensor.ILightSensorMode;
 import de.fhg.iais.roberta.inter.mode.sensor.IMotorTachoMode;
-import de.fhg.iais.roberta.inter.mode.sensor.ISensorPort;
 import de.fhg.iais.roberta.inter.mode.sensor.ISoundSensorMode;
 import de.fhg.iais.roberta.inter.mode.sensor.ITouchSensorMode;
 import de.fhg.iais.roberta.inter.mode.sensor.IUltrasonicSensorMode;
@@ -112,11 +111,6 @@ public class Factory extends AbstractRobotFactory {
 
     @Override
     public ITouchSensorMode getTouchSensorMode(String mode) {
-        return null;
-    }
-
-    @Override
-    public ISensorPort getSensorPort(String port) {
         return null;
     }
 

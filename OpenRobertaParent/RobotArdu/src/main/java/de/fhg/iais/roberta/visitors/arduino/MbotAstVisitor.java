@@ -26,7 +26,7 @@ public interface MbotAstVisitor<V> extends ArduinoAstVisitor<V> {
 
     V visitJoystick(Joystick<V> joystick);
 
-    V visitAccelerometer(AccelerometerSensor<V> accelerometer);
+    V visitAccelerometerSensor(AccelerometerSensor<V> accelerometer);
 
     V visitFlameSensor(FlameSensor<V> flameSensor);
 

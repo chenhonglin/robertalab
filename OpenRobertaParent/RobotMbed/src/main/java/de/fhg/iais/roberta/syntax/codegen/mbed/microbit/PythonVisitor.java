@@ -8,6 +8,7 @@ import de.fhg.iais.roberta.components.mbed.MicrobitConfiguration;
 import de.fhg.iais.roberta.inter.mode.general.IMode;
 import de.fhg.iais.roberta.mode.action.mbed.DisplayTextMode;
 import de.fhg.iais.roberta.mode.general.IndexLocation;
+import de.fhg.iais.roberta.mode.sensor.AccelerometerSensorMode;
 import de.fhg.iais.roberta.mode.sensor.TimerSensorMode;
 import de.fhg.iais.roberta.mode.sensor.mbed.ValueType;
 import de.fhg.iais.roberta.syntax.Phrase;
@@ -70,6 +71,7 @@ import de.fhg.iais.roberta.syntax.lang.functions.TextPrintFunct;
 import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
+import de.fhg.iais.roberta.syntax.sensor.generic.AccelerometerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.BrickSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.ColorSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.CompassSensor;
@@ -83,8 +85,6 @@ import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.UltrasonicSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerOrientationSensor;
-import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerSensor;
-import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerSensor.Mode;
 import de.fhg.iais.roberta.syntax.sensor.mbed.GestureSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.MbedGetSampleSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.PinGetValueSensor;
@@ -118,8 +118,8 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     private PythonVisitor(MicrobitConfiguration brickConfiguration, ArrayList<ArrayList<Phrase<Void>>> programPhrases, int indentation) {
         super(programPhrases, indentation);
 
-        usedHardwareVisitor = new UsedHardwareCollectorVisitor(programPhrases, brickConfiguration);
-        loopsLabels = usedHardwareVisitor.getloopsLabelContainer();
+        this.usedHardwareVisitor = new UsedHardwareCollectorVisitor(programPhrases, brickConfiguration);
+        this.loopsLabels = this.usedHardwareVisitor.getloopsLabelContainer();
     }
 
     /**
@@ -138,13 +138,13 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitStringConst(StringConst<Void> stringConst) {
-        sb.append("'").append(StringEscapeUtils.escapeEcmaScript(stringConst.getValue().replaceAll("[<>\\$]", ""))).append("'");
+        this.sb.append("'").append(StringEscapeUtils.escapeEcmaScript(stringConst.getValue().replaceAll("[<>\\$]", ""))).append("'");
         return null;
     }
 
     @Override
     public Void visitPredefinedImage(PredefinedImage<Void> predefinedImage) {
-        sb.append("microbit.Image." + predefinedImage.getImageName());
+        this.sb.append("microbit.Image." + predefinedImage.getImageName());
         return null;
     }
 
@@ -152,25 +152,25 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     public Void visitEmptyExpr(EmptyExpr<Void> emptyExpr) {
         switch ( emptyExpr.getDefVal() ) {
             case STRING:
-                sb.append("\"\"");
+                this.sb.append("\"\"");
                 break;
             case BOOLEAN:
-                sb.append("True");
+                this.sb.append("True");
                 break;
             case NUMBER_INT:
-                sb.append("0");
+                this.sb.append("0");
                 break;
             case ARRAY:
             case NULL:
                 break;
             case PREDEFINED_IMAGE:
-                sb.append("microbit.Image.SILLY");
+                this.sb.append("microbit.Image.SILLY");
                 break;
             case IMAGE:
-                sb.append("microbit.Image()");
+                this.sb.append("microbit.Image()");
                 break;
             default:
-                sb.append("[[EmptyExpr [defVal=" + emptyExpr.getDefVal() + "]]]");
+                this.sb.append("[[EmptyExpr [defVal=" + emptyExpr.getDefVal() + "]]]");
                 break;
         }
         return null;
@@ -178,7 +178,7 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitWaitStmt(WaitStmt<Void> waitStmt) {
-        sb.append("while True:");
+        this.sb.append("while True:");
         incrIndentation();
         visitStmtList(waitStmt.getStatements());
         decrIndentation();
@@ -188,21 +188,21 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
-        sb.append("microbit.sleep(");
+        this.sb.append("microbit.sleep(");
         waitTimeStmt.getTime().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        sb.append("microbit.display.clear()");
+        this.sb.append("microbit.display.clear()");
         return null;
     }
 
     @Override
     public Void visitImage(Image<Void> image) {
-        sb.append("microbit.Image('");
+        this.sb.append("microbit.Image('");
         for ( int i = 0; i < 5; i++ ) {
             for ( int j = 0; j < 5; j++ ) {
                 String pixel = image.getImage()[i][j].trim();
@@ -211,13 +211,13 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
                 } else if ( pixel.equals("") ) {
                     pixel = "0";
                 }
-                sb.append(pixel);
+                this.sb.append(pixel);
             }
             if ( i < 4 ) {
-                sb.append(":");
+                this.sb.append(":");
             }
         }
-        sb.append("')");
+        this.sb.append("')");
         return null;
     }
 
@@ -253,39 +253,39 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitDisplayTextAction(DisplayTextAction<Void> displayTextAction) {
-        sb.append("microbit.display.");
+        this.sb.append("microbit.display.");
         appendTextDisplayType(displayTextAction);
         if ( !displayTextAction.getMsg().getKind().hasName("STRING_CONST") ) {
-            sb.append("str(");
+            this.sb.append("str(");
             displayTextAction.getMsg().visit(this);
-            sb.append(")");
+            this.sb.append(")");
         } else {
             displayTextAction.getMsg().visit(this);
         }
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     private void appendTextDisplayType(DisplayTextAction<Void> displayTextAction) {
         if ( displayTextAction.getMode() == DisplayTextMode.TEXT ) {
-            sb.append("scroll(");
+            this.sb.append("scroll(");
         } else {
-            sb.append("show(");
+            this.sb.append("show(");
         }
     }
 
     @Override
     public Void visitDisplayImageAction(DisplayImageAction<Void> displayImageAction) {
-        sb.append("microbit.display.show(");
+        this.sb.append("microbit.display.show(");
         displayImageAction.getValuesToDisplay().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitImageInvertFunction(ImageInvertFunction<Void> imageInvertFunction) {
         imageInvertFunction.getImage().visit(this);
-        sb.append(".invert()");
+        this.sb.append(".invert()");
         return null;
     }
 
@@ -341,13 +341,13 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
-        sb.append("microbit." + brickSensor.getKey().toString().toLowerCase() + ".is_pressed()");
+        this.sb.append("microbit." + brickSensor.getKey().toString().toLowerCase() + ".is_pressed()");
         return null;
     }
 
     @Override
     public Void visitTemperatureSensor(TemperatureSensor<Void> temperatureSensor) {
-        sb.append("microbit.temperature()");
+        this.sb.append("microbit.temperature()");
         return null;
     }
 
@@ -384,9 +384,9 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     @Override
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
         if ( timerSensor.getMode() == TimerSensorMode.GET_SAMPLE ) {
-            sb.append("( microbit.running_time() - timer1 )");
+            this.sb.append("( microbit.running_time() - timer1 )");
         } else {
-            sb.append("timer1 = microbit.running_time()");
+            this.sb.append("timer1 = microbit.running_time()");
         }
         return null;
     }
@@ -403,10 +403,10 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitAccelerometerSensor(AccelerometerSensor<Void> accelerometerSensor) {
-        if ( accelerometerSensor.getAccelerationDirection() == Mode.STRENGTH ) {
-            sb.append("math.sqrt(microbit.accelerometer.get_x()**2 + microbit.accelerometer.get_y()**2 + microbit.accelerometer.get_z()**2)");
+        if ( accelerometerSensor.getMode().equals(AccelerometerSensorMode.STRENGTH) ) {
+            this.sb.append("math.sqrt(microbit.accelerometer.get_x()**2 + microbit.accelerometer.get_y()**2 + microbit.accelerometer.get_z()**2)");
         } else {
-            sb.append(String.format("microbit.accelerometer.get_%s()", accelerometerSensor.getAccelerationDirection().toString().toLowerCase()));
+            this.sb.append(String.format("microbit.accelerometer.get_%s()", accelerometerSensor.getMode().toString().toLowerCase()));
         }
         return null;
     }
@@ -414,7 +414,7 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     @Override
     public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinValueSensor) {
         final String valueType = pinValueSensor.getValueType().toString().toLowerCase();
-        sb.append("microbit.pin" + pinValueSensor.getPin().getPinNumber() + ".read_" + valueType + "()");
+        this.sb.append("microbit.pin" + pinValueSensor.getPin().getPinNumber() + ".read_" + valueType + "()");
         return null;
     }
 
@@ -427,24 +427,24 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitGestureSensor(GestureSensor<Void> gestureSensor) {
-        sb.append("\"" + gestureSensor.getMode().getPythonCode() + "\" == microbit.accelerometer.current_gesture()");
+        this.sb.append("\"" + gestureSensor.getMode().getPythonCode() + "\" == microbit.accelerometer.current_gesture()");
         return null;
     }
 
     @Override
     public Void visitTextPrintFunct(TextPrintFunct<Void> textPrintFunct) {
-        sb.append("print(");
+        this.sb.append("print(");
         textPrintFunct.getParam().get(0).visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitImageShiftFunction(ImageShiftFunction<Void> imageShiftFunction) {
         imageShiftFunction.getImage().visit(this);
-        sb.append(".shift_" + imageShiftFunction.getShiftDirection().toString().toLowerCase() + "(");
+        this.sb.append(".shift_" + imageShiftFunction.getShiftDirection().toString().toLowerCase() + "(");
         imageShiftFunction.getPositions().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
@@ -481,18 +481,18 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
         switch ( (IndexLocation) indexOfFunct.getLocation() ) {
             case FIRST:
                 indexOfFunct.getParam().get(0).visit(this);
-                sb.append(".index(");
+                this.sb.append(".index(");
                 indexOfFunct.getParam().get(1).visit(this);
-                sb.append(")");
+                this.sb.append(")");
                 break;
             case LAST:
-                sb.append("(len(");
+                this.sb.append("(len(");
                 indexOfFunct.getParam().get(0).visit(this);
-                sb.append(") - 1) - ");
+                this.sb.append(") - 1) - ");
                 indexOfFunct.getParam().get(0).visit(this);
-                sb.append("[::-1].index(");
+                this.sb.append("[::-1].index(");
                 indexOfFunct.getParam().get(1).visit(this);
-                sb.append(")");
+                this.sb.append(")");
                 break;
             default:
                 break;
@@ -504,13 +504,13 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
         switch ( lengthOfIsEmptyFunct.getFunctName() ) {
             case LISTS_LENGTH:
-                sb.append("len( ");
+                this.sb.append("len( ");
                 lengthOfIsEmptyFunct.getParam().get(0).visit(this);
-                sb.append(")");
+                this.sb.append(")");
                 break;
 
             case LIST_IS_EMPTY:
-                sb.append("not ");
+                this.sb.append("not ");
                 lengthOfIsEmptyFunct.getParam().get(0).visit(this);
                 break;
             default:
@@ -521,17 +521,17 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitListCreate(ListCreate<Void> listCreate) {
-        sb.append("[");
+        this.sb.append("[");
         listCreate.getValue().visit(this);
-        sb.append("]");
+        this.sb.append("]");
         return null;
     }
 
     @Override
     public Void visitListRepeat(ListRepeat<Void> listRepeat) {
-        sb.append("[");
+        this.sb.append("[");
         listRepeat.getParam().get(0).visit(this);
-        sb.append("] * ");
+        this.sb.append("] * ");
         listRepeat.getParam().get(1).visit(this);
         return null;
     }
@@ -540,13 +540,13 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     public Void visitListGetIndex(ListGetIndex<Void> listGetIndex) {
         listGetIndex.getParam().get(0).visit(this);
         if ( getEnumCode(listGetIndex.getElementOperation()).equals("get") ) {
-            sb.append("[");
+            this.sb.append("[");
             listGetIndex.getParam().get(1).visit(this);
-            sb.append("]");
+            this.sb.append("]");
         } else if ( getEnumCode(listGetIndex.getElementOperation()).equals("remove") ) {
-            sb.append(".pop(");
+            this.sb.append(".pop(");
             listGetIndex.getParam().get(1).visit(this);
-            sb.append(")");
+            this.sb.append(")");
         }
         return null;
     }
@@ -555,9 +555,9 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     public Void visitListSetIndex(ListSetIndex<Void> listSetIndex) {
         if ( getEnumCode(listSetIndex.getElementOperation()).equals("set") ) {
             listSetIndex.getParam().get(0).visit(this);
-            sb.append("[");
+            this.sb.append("[");
             listSetIndex.getParam().get(1).visit(this);
-            sb.append("] = ");
+            this.sb.append("] = ");
             listSetIndex.getParam().get(2).visit(this);
         }
         return null;
@@ -565,13 +565,13 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        sb.append("min(max(");
+        this.sb.append("min(max(");
         mathConstrainFunct.getParam().get(0).visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         mathConstrainFunct.getParam().get(1).visit(this);
-        sb.append("), ");
+        this.sb.append("), ");
         mathConstrainFunct.getParam().get(2).visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
@@ -579,14 +579,14 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     public Void visitMathNumPropFunct(MathNumPropFunct<Void> mathNumPropFunct) {
         switch ( mathNumPropFunct.getFunctName() ) {
             case EVEN:
-                sb.append("(");
+                this.sb.append("(");
                 mathNumPropFunct.getParam().get(0).visit(this);
-                sb.append(" % 2) == 0");
+                this.sb.append(" % 2) == 0");
                 break;
             case ODD:
-                sb.append("(");
+                this.sb.append("(");
                 mathNumPropFunct.getParam().get(0).visit(this);
-                sb.append(" % 2) == 1");
+                this.sb.append(" % 2) == 1");
                 break;
             case PRIME:
                 // TODO
@@ -595,21 +595,21 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
                 //                this.sb.append(")");
                 break;
             case WHOLE:
-                sb.append("(");
+                this.sb.append("(");
                 mathNumPropFunct.getParam().get(0).visit(this);
-                sb.append(" % 1) == 0");
+                this.sb.append(" % 1) == 0");
                 break;
             case POSITIVE:
                 mathNumPropFunct.getParam().get(0).visit(this);
-                sb.append(" > 0");
+                this.sb.append(" > 0");
                 break;
             case NEGATIVE:
                 mathNumPropFunct.getParam().get(0).visit(this);
-                sb.append(" < 0");
+                this.sb.append(" < 0");
                 break;
             case DIVISIBLE_BY:
                 mathNumPropFunct.getParam().get(0).visit(this);
-                sb.append(" % ");
+                this.sb.append(" % ");
                 mathNumPropFunct.getParam().get(1).visit(this);
                 break;
             default:
@@ -622,23 +622,23 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
-                sb.append("sum(");
+                this.sb.append("sum(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MIN:
-                sb.append("min(");
+                this.sb.append("min(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MAX:
-                sb.append("max(");
+                this.sb.append("max(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case AVERAGE:
-                sb.append("float(sum(");
+                this.sb.append("float(sum(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                sb.append("))/len(");
+                this.sb.append("))/len(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                sb.append(")");
+                this.sb.append(")");
                 break;
             case MEDIAN:
                 // TODO
@@ -663,37 +663,37 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
             default:
                 break;
         }
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitMathRandomFloatFunct(MathRandomFloatFunct<Void> mathRandomFloatFunct) {
-        sb.append("random.random()");
+        this.sb.append("random.random()");
         return null;
     }
 
     @Override
     public Void visitMathRandomIntFunct(MathRandomIntFunct<Void> mathRandomIntFunct) {
-        sb.append("random.randint(");
+        this.sb.append("random.randint(");
         mathRandomIntFunct.getParam().get(0).visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         mathRandomIntFunct.getParam().get(1).visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
-        sb.append("\"\".join(");
+        this.sb.append("\"\".join(");
         textJoinFunct.getParam().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitCompassSensor(CompassSensor<Void> compassSensor) {
-        sb.append("microbit.compass.heading()");
+        this.sb.append("microbit.compass.heading()");
         return null;
     }
 
@@ -704,7 +704,7 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitPinTouchSensor(PinTouchSensor<Void> pinTouchSensor) {
-        sb.append("microbit.pin" + pinTouchSensor.getPin().getPinNumber() + ".is_touched()");
+        this.sb.append("microbit.pin" + pinTouchSensor.getPin().getPinNumber() + ".is_touched()");
         return null;
     }
 
@@ -720,25 +720,25 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitRadioSendAction(RadioSendAction<Void> radioSendAction) {
-        sb.append("radio.config(power=" + radioSendAction.getPower() + ")");
+        this.sb.append("radio.config(power=" + radioSendAction.getPower() + ")");
         nlIndent();
-        sb.append("radio.send(");
+        this.sb.append("radio.send(");
         radioSendAction.getMsg().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
     @Override
     public Void visitRadioReceiveAction(RadioReceiveAction<Void> radioReceiveAction) {
-        sb.append("radio.receive()");
+        this.sb.append("radio.receive()");
         return null;
     }
 
     @Override
     public Void visitRadioSetChannelAction(RadioSetChannelAction<Void> radioSetChannelAction) {
-        sb.append("radio.config(group=");
+        this.sb.append("radio.config(group=");
         radioSetChannelAction.getChannel().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
@@ -755,14 +755,14 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitPinWriteValueSensor(PinWriteValue<Void> pinWriteValueSensor) {
-        sb.append("microbit.pin" + pinWriteValueSensor.getPin().getPinNumber());
+        this.sb.append("microbit.pin" + pinWriteValueSensor.getPin().getPinNumber());
         String valueType = "analog(";
         if ( pinWriteValueSensor.getValueType() == ValueType.DIGITAL ) {
             valueType = "digital(";
         }
-        sb.append(".write_" + valueType);
+        this.sb.append(".write_" + valueType);
         pinWriteValueSensor.getValue().visit(this);
-        sb.append(");");
+        this.sb.append(");");
         return null;
     }
 
@@ -783,23 +783,23 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
 
     @Override
     public Void visitDisplaySetPixelAction(DisplaySetPixelAction<Void> displaySetPixelAction) {
-        sb.append("microbit.display.set_pixel(");
+        this.sb.append("microbit.display.set_pixel(");
         displaySetPixelAction.getX().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         displaySetPixelAction.getY().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         displaySetPixelAction.getBrightness().visit(this);
-        sb.append(");");
+        this.sb.append(");");
         return null;
     }
 
     @Override
     public Void visitDisplayGetPixelAction(DisplayGetPixelAction<Void> displayGetPixelAction) {
-        sb.append("microbit.display.get_pixel(");
+        this.sb.append("microbit.display.get_pixel(");
         displayGetPixelAction.getX().visit(this);
-        sb.append(", ");
+        this.sb.append(", ");
         displayGetPixelAction.getY().visit(this);
-        sb.append(")");
+        this.sb.append(")");
         return null;
     }
 
@@ -808,19 +808,19 @@ public class PythonVisitor extends RobotPythonVisitor implements MbedAstVisitor<
         if ( !withWrapping ) {
             return;
         }
-        sb.append("import microbit\n");
-        sb.append("import random\n");
-        sb.append("import math\n");
+        this.sb.append("import microbit\n");
+        this.sb.append("import random\n");
+        this.sb.append("import math\n");
 
-        if ( usedHardwareVisitor.isRadioUsed() ) {
-            sb.append("import radio\n\n");
-            sb.append("radio.on()\n");
+        if ( this.usedHardwareVisitor.isRadioUsed() ) {
+            this.sb.append("import radio\n\n");
+            this.sb.append("radio.on()\n");
         } else {
             nlIndent();
         }
-        sb.append("class BreakOutOfALoop(Exception): pass\n");
-        sb.append("class ContinueLoop(Exception): pass\n\n");
-        sb.append("timer1 = microbit.running_time()");
+        this.sb.append("class BreakOutOfALoop(Exception): pass\n");
+        this.sb.append("class ContinueLoop(Exception): pass\n\n");
+        this.sb.append("timer1 = microbit.running_time()");
         generateUserDefinedMethods();
 
     }

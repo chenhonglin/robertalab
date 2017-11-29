@@ -17,6 +17,7 @@ import de.fhg.iais.roberta.syntax.BlocklyComment;
 import de.fhg.iais.roberta.syntax.BlocklyConstants;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.sensor.Sensor;
+import de.fhg.iais.roberta.syntax.sensor.generic.AccelerometerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.BrickSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.BrickSensor.Mode;
 import de.fhg.iais.roberta.syntax.sensor.generic.CompassSensor;
@@ -89,7 +90,12 @@ public class MbedGetSampleSensor<V> extends Sensor<V> {
                         .make(factory.getLightSensorMode(BlocklyConstants.DEFAULT), factory.getSensorPort(BlocklyConstants.NO_PORT), properties, comment);
                 break;
             case BlocklyConstants.ACCELERATION:
-                this.sensor = AccelerometerSensor.make(AccelerometerSensor.Mode.valueOf(port), properties, comment);
+                this.sensor =
+                    AccelerometerSensor.make(
+                        factory.getAccelerometerSensorMode(sensorType.getSensorMode()),
+                        factory.getSensorPort(BlocklyConstants.NO_PORT),
+                        properties,
+                        comment);
                 break;
             case BlocklyConstants.ORIENTATION:
                 this.sensor = AccelerometerOrientationSensor.make(AccelerometerOrientationSensor.Mode.valueOf(port), properties, comment);

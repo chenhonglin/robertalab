@@ -77,7 +77,7 @@ public class BrickCheckVisitor extends RobotBrickCheckVisitor implements MbotAst
     }
 
     @Override
-    public Void visitAccelerometer(AccelerometerSensor<Void> accelerometer) {
+    public Void visitAccelerometerSensor(AccelerometerSensor<Void> accelerometer) {
         // TODO Auto-generated method stub
         return null;
     }

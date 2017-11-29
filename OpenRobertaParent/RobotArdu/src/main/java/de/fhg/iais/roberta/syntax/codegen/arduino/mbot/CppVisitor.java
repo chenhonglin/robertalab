@@ -316,7 +316,7 @@ public class CppVisitor extends ArduinoVisitor implements MbotAstVisitor<Void> {
     }
 
     @Override
-    public Void visitAccelerometer(AccelerometerSensor<Void> accelerometer) {
+    public Void visitAccelerometerSensor(AccelerometerSensor<Void> accelerometer) {
         sb.append("myGyro" + accelerometer.getPort().getPortNumber() + ".getAngle" + accelerometer.getMode() + "()");
         return null;
     }

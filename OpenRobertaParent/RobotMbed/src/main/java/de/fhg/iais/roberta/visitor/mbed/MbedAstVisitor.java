@@ -21,7 +21,6 @@ import de.fhg.iais.roberta.syntax.functions.mbed.ImageInvertFunction;
 import de.fhg.iais.roberta.syntax.functions.mbed.ImageShiftFunction;
 import de.fhg.iais.roberta.syntax.sensor.generic.TemperatureSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerOrientationSensor;
-import de.fhg.iais.roberta.syntax.sensor.mbed.AccelerometerSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.GestureSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.MbedGetSampleSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.PinGetValueSensor;
@@ -180,13 +179,6 @@ public interface MbedAstVisitor<V> extends AstVisitor<V> {
      * @param DisplayGetPixelAction phrase to be visited
      */
     V visitDisplayGetPixelAction(DisplayGetPixelAction<V> displayGetPixelAction);
-
-    /**
-     * visit a {@link AccelerometerSensor}.
-     *
-     * @param AccelerometerSensor phrase to be visited
-     */
-    V visitAccelerometerSensor(AccelerometerSensor<V> accelerometerSensor);
 
     /**
      * visit a {@link AccelerometerOrientationSensor}.
